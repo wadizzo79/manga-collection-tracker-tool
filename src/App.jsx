@@ -10,10 +10,12 @@ function App() {
     ? Math.max(...manga.map(manga => manga.id)) + 1
     : 1; //Calculates the next available id from existing entries
 
-  function addManga(text) {
+  function addManga(text, volumes) {
     const newManga = {
       id: newId,
       text: text,
+      volumes: volumes
+
     }; // Creates an entry
 
     setManga(currentManga => [

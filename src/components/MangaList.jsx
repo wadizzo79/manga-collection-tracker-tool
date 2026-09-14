@@ -14,7 +14,13 @@ function MangaList({ manga }){
             </thead>
 
             <tbody>
-                {manga.map(manga =><tr><td>{manga.text}</td></tr>)} {/* Table entry per row */}
+                {manga.map(manga =>
+                    <tr>
+                        <td>{manga.text}</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td>{manga.volumes}</td>
+                    </tr>)} {/* Table entry per row */}
             </tbody>
         </table>
     ); // Manga entry list
