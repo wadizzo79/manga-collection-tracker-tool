@@ -48,7 +48,7 @@ function InputArea({ addManga }) {
             <input type= "text" value={newEntry} onChange={(e) => setNewEntry(e.target.value)} />
             <button type="submit" onClick={searchManga}>Search</button>
             {searchResults.map(manga => (
-                <p key={manga.id}>{manga.title.romaji} <button type="submit" onClick={() => addManga(manga.title.romaji, manga.volumes)}>Add</button></p>
+                <p key={manga.id}>{manga.title.romaji} <button type="submit" onClick={() => addManga(manga.id, manga.title.romaji, manga.volumes)}>Add</button></p>
             ))}
         </>
     );
