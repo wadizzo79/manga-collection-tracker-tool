@@ -50,6 +50,7 @@ function InputArea({ addManga }) {
             {searchResults.map(manga => (
                 <p key={manga.id}>{manga.title.romaji} <button type="submit" onClick={() => addManga(manga.id, manga.title.romaji, manga.volumes)}>Add</button></p>
             ))}
+            
         </>
     );
 

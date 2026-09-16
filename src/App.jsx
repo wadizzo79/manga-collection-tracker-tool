@@ -10,27 +10,20 @@ function App() {
     ? Math.max(...manga.map(manga => manga.id)) + 1
     : 1; //Calculates the next available id from existing entries
 
-  function addManga(id, text, volumes) {
-    const newManga = {
-      id: newId, // Manga collection's ID
-      mangaId: id, // AniList's ID
-      text: text, // Manga title
-      volumes: volumes // AniList's general volume count
-
-    }; // Creates an entry
-
-    setManga(currentManga => [
-      ...currentManga,
-      newManga
-    ]); // Adds the new entry to the existing ones
-  }
 
   const mangaInfo = [{
-    id: 12345,
+    id: 30656,
     title: "Vagabond",
     japaneseVolumes: 37,
 
     englishEditions: [
+      {
+        name: "Singles",
+        format: "single",
+        volumes: [
+
+        ]
+      },
       {
         name: "VIZBIG",
         format: "omnibus",
@@ -56,6 +49,33 @@ function App() {
   }
 ];
 
+  function addManga(id, text, volumes) {  
+    console.log("AniList ID:", id);
+    console.log("mangaInfo:", mangaInfo);
+
+    const selectedManga = mangaInfo.find(manga => manga.id === id); // Compares the id from aniList against the id of same manga in mangainfo to find more details
+    console.log("SELECTED MANGA:", selectedManga);
+
+    const newManga = {
+      id: newId, // Manga collection's ID
+      mangaId: id, // AniList's ID
+      text: text, // Manga title
+      volumes: volumes, // AniList's general volume count
+      englishEditions: selectedManga.englishEditions, // The english edition information from the record found in mangaInfo 
+      selectedEdition: "Singles" // The default selection for an added manga
+    }; // Creates an entry
+    
+
+    console.log("NEW MANGA: ", newManga);
+
+    setManga(currentManga => [
+      ...currentManga,
+      newManga
+    ]); // Adds the new entry to the existing ones
+
+
+  }
+
   const userCollection = {
     mangaId: 12345,
     title: "Vagabond",
@@ -68,13 +88,13 @@ function App() {
     ]
   };
 
-  const selectedManga = mangaInfo.find(manga => manga.id === id);
+
 
   return (
     <>
       <InputArea addManga={addManga} />
-
-      <MangaList manga={manga} />
+      
+      <MangaList manga={manga} setManga={setManga} />
     </>
   );
 }
