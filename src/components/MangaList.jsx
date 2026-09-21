@@ -18,12 +18,14 @@ function MangaList({ manga, setManga }){
                     const selectedEdition = manga.englishEditions.find(
                         edition => edition.name === manga.selectedEdition
                     );
+                    const collectedVolumes = manga.collectedVolumes;
                     console.log(selectedEdition.volumes.length);
+                    console.log("volumes", collectedVolumes);
 
                     return (
                         <tr>
                             <td>{manga.text}</td>
-                            <td>{selectedEdition.volumes.length}</td> {/* Displays the number the user owns against the numbers of the selected edition available */}
+                            <td>{manga.collectedVolumes.length}/{selectedEdition.volumes.length}</td> {/* Displays the number the user owns against the numbers of the selected edition available */}
                             <td>
                                 <select 
                                     value={manga.selectedEdition}
@@ -45,20 +47,36 @@ function MangaList({ manga, setManga }){
                                 {selectedEdition.volumes.map(volume => (
                                     <button 
                                         key={volume.number} 
-                                        className={manga.collectedVolumes.includes(volume.number) ? "collected" : ""}
-                                        onClick={() => manga.collectedVolumes.includes(volume.number) === manga.collectedVolumes ?
-                                            manga.collectedVolumes.filter(volume.number) //Continue from here
-                                         }
+                                        className={manga.collectedVolumes.includes(volume.number) ? "collected" : ""} // Checks if a volume has been collected among the stored volumes
+                                        onClick={() => {
+                                            setManga(currentManga => 
+                                                currentManga.map(item =>
+                                                    item.id === manga.id
+                                                        ? {
+                                                            ...item,
+                                                            collectedVolumes: manga.collectedVolumes.includes(volume.number)
+                                                            ? item.collectedVolumes.filter(
+                                                                collectedVolume => collectedVolume !== volume.number
+                                                            ) // On click if the volume number is present it is removed
+                                                            : [
+                                                                ...item.collectedVolumes,
+                                                                volume.number
+                                                            ] // if not it is added
+                                                        }
+                                                        : item
+                                                    )
+                                                );
+                                         }} // When an uncollected volume is clicked it adds it and vice versa
                                         >
                                             {volume.number}
                                     </button>
-                                ))} {/* The number of volumes available to be selected is displayed here */}
+                                ))} {/* A volume selector in the form of numbers that stores and deletes the number of volumes a user has collected */}
                             </td>
                             <td>{manga.volumes}</td>
                         </tr>)} // Table entry per row 
                     )
                 }
-                    
+                  
             </tbody>
         </table>
     ); // Manga entry list
