@@ -2,9 +2,10 @@ import { useState } from 'react';
 
 function MangaList({ manga, setManga }){
     const [inputMode, setInputMode] = useState("total"); // Remembers the input mode the user selected
-    const [totalInput, setTotalInput] = useState(""); // Remembers the input the user typed into the field
+    const [totalInput, setTotalInput] = useState(""); // Remembers the input the user typed into the field after selecting "total"
     const [rangeStart, setRangeStart] = useState(""); // Remembers the first value entered by the user after selecting the "range" option
-    const [rangeEnd, setRangeEnd] = useState(""); // Remembers the second value entered by the user after selecting thr "range" option
+    const [rangeEnd, setRangeEnd] = useState(""); // Remembers the second value entered by the user after selecting the "range" option
+    const [individualInput, setIndividualInput] = useState(""); // Remembers the input the user typed into the field after selecting "individual"
 
     return (
         <table>
@@ -61,32 +62,103 @@ function MangaList({ manga, setManga }){
                                     <option value="individual">Individual</option>
                                 </select> {/* The user can select how to input their volumes of manga */}
                                 {inputMode === "total" && (
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        value={totalInput} // React controls what is displayed on the input
-                                        onChange={(e) => setTotalInput(e.target.value)} // What is typed updates totalInput
-                                    />
+                                    <>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={totalInput} // React controls what is displayed on the input
+                                            onChange={(e) => setTotalInput(e.target.value)} // What is typed updates totalInput
+                                        />
+
+                                        <button
+                                            onClick={() => {
+                                                    const volumes = Array.from(
+                                                        { length: Number(totalInput) }, // Takes the totalInput and converts it from a string to a number which becomes the length
+                                                        (_, index) => index + 1 // A function that adds one to the index to represent the volume no. since an array starts from 0 
+                                                    ); // Coverts the total into individual entries eg 5 means the user has collected the first 5 volumes
+
+                                                    setManga(currentManga => currentManga.map(item =>
+                                                        item.id === manga.id
+                                                        ? { ...item, collectedVolumes: volumes }
+                                                        : item
+                                                    )
+                                                ); // Stores the separated entries into their respective manga
+                                            }}
+                                        >
+                                            Apply
+                                        </button>
+                                    </>
                                 )} {/* When a user selects total as their input a field will appear */}
 
-                                <button
-                                    onClick={
-                                        () => {
-                                            const volumes = Array.from(
-                                                { length: Number(totalInput) },
-                                                (_, index) => index + 1
-                                            ); // Coverts the total into individual entries eg 5 means the user has collected the first 5 volumes
+                                {inputMode === "range" && (
+                                    <>
+                                        <input 
+                                            type="number"
+                                            min="1"
+                                            value={rangeStart}
+                                            onChange={(e) => setRangeStart(e.target.value)}
+                                        /> 
 
-                                            setManga(currentManga => currentManga.map(item =>
-                                                item.id === manga.id
-                                                ? { ...item, collectedVolumes: volumes }
-                                                : item
-                                            )
-                                        ); // Stores the separated entries into their respective manga
-                                    }}
-                                >
-                                    Apply
-                                </button>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={rangeEnd}
+                                            onChange={(e) => setRangeEnd(e.target.value)} 
+                                        />
+
+                                        <button
+                                            onClick={() => {
+                                                const start = Number(rangeStart);
+                                                const end = Number(rangeEnd);
+
+                                                const volumes = Array.from(
+                                                    { length: end - start + 1},
+                                                    (_, index) => start + index
+                                                );
+
+                                                setManga(currentManga => currentManga.map(item => 
+                                                    item.id === manga.id
+                                                    ? { ...item, collectedVolumes: volumes }
+                                                    : item
+                                                    )
+                                                );
+                                            }}
+                                        >
+                                            Apply
+                                        </button>
+                                    </>
+                                )} {/* When a user selects range as their input two fields appear to put in the start and end volumes */}
+
+                                {inputMode === "individual" && (
+                                    <>
+                                        <input 
+                                            type="text"
+                                            value={individualInput}
+                                            onChange={(e) => setIndividualInput(e.target.value)}
+                                        />
+
+                                        <button
+                                            onClick={() => {
+                                                const volumes = individualInput
+                                                    .split(",") // Turns 1,2,3 into ["1","2","3"]
+                                                    .map(volume => Number(volume)); // Converts the entered strings into numbers
+
+                                                console.log(volumes);
+
+                                                setManga(currentManga => currentManga.map(item =>
+                                                    item.id === manga.id
+                                                    ? { ...item, collectedVolumes: volumes }
+                                                    : item
+                                                    )
+                                            );
+                                        ``}}
+                                        >
+                                            Apply
+                                        </button>
+                                    </>
+                                )} {/* When a user selects 'individual' they will be able to enter multiple numbers that could represent any volume number into the field that appears */}
+
+                          
 
                                 {selectedEdition.volumes.map(volume => (
                                     <button 
