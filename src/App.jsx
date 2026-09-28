@@ -63,7 +63,7 @@ function App() {
       volumes: volumes, // AniList's general volume count
       englishEditions: selectedManga.englishEditions, // The english edition information from the record found in mangaInfo 
       selectedEdition: "VIZBIG", // The default selection for an added manga
-      collectedVolumes: [1] // The number of volumes owned by the user is stored here
+      collectedVolumes: [] // The number of volumes owned by the user is stored here
     }; // Creates an entry
     
 

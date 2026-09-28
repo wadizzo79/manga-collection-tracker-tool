@@ -19,38 +19,48 @@ function MangaList({ manga, setManga }){
             </thead>
 
             <tbody>
-                {manga.map(manga => {
-                    const selectedEdition = manga.englishEditions.find(
-                        edition => edition.name === manga.selectedEdition
+                {manga.map(currentManga => {
+                    const selectedEdition = currentManga.englishEditions.find(
+                        edition => edition.name === currentManga.selectedEdition
                     );
-                    const collectedVolumes = manga.collectedVolumes;
+                    const collectedVolumes = currentManga.collectedVolumes;
                     console.log(selectedEdition.volumes.length);
                     console.log("volumes", collectedVolumes);
-                    console.log(totalInput);
-                    console.log(
+                    //console.log(totalInput);
+                    /*console.log(
                         Array.from({ length: Number(totalInput) },(_, index) => index + 1)
-                    );
+                    ); */
+
+                    const usedEditions = manga
+                        .filter(item => item.mangaId === currentManga.mangaId && item.id !== currentManga.id) // Compares a new manga entry with already existing entries and ensures they're the same series(mangaId) but different entry(id)
+                        .map(item => item.selectedEdition); // Stores the selected editions of the existing entries
 
                     return (
                         <tr>
-                            <td>{manga.text}</td>
-                            <td>{manga.collectedVolumes.length}/{selectedEdition.volumes.length}</td> {/* Displays the number the user owns against the numbers of the selected edition available */}
+                            <td>{currentManga.text}</td>
+                            <td>{currentManga.collectedVolumes.length}/{selectedEdition.volumes.length}</td> {/* Displays the number the user owns against the numbers of the selected edition available */}
                             <td>
                                 <select 
-                                    value={manga.selectedEdition}
+                                    value={currentManga.selectedEdition}
                                     onChange={(e) => {
                                         setManga(currentManga => currentManga.map(
-                                            item => item.id === manga.id
-                                            ? { ...item, selectedEdition: e.target.value } // item maintains the data for the manga while only the edition changes
+                                            item => item.id === currentManga.id
+                                            ? { 
+                                                ...item, 
+                                                selectedEdition: e.target.value, 
+                                                collectedVolumes: [] // Changing editions refreshes collectedVolumes to 0
+                                            } // item maintains the data for the manga while only the edition changes
                                             : item
                                         )
                                         );
                                     }} 
                                     >
-                                        {manga.englishEditions.map(edition => (
-                                            <option key={edition.name} value={edition.name}>
-                                                {edition.name} {/* Name of the edition */}
-                                            </option>
+                                        {currentManga.englishEditions
+                                            .filter(edition => !usedEditions.includes(edition.name))
+                                            .map(edition => (
+                                                <option key={edition.name} value={edition.name}>
+                                                    {edition.name} {/* Name of the edition */}
+                                                </option>
                                         ))}
                                 </select> {/* The user selects the english edition from here */}
                                 <select
@@ -72,13 +82,19 @@ function MangaList({ manga, setManga }){
 
                                         <button
                                             onClick={() => {
+                                                    const total = Number(totalInput);
+
+                                                    if (total > selectedEdition.volumes.length) {
+                                                        return;
+                                                    } // Checks if the input the user added is greater than the number of volumes actually available in the selected edition
+
                                                     const volumes = Array.from(
                                                         { length: Number(totalInput) }, // Takes the totalInput and converts it from a string to a number which becomes the length
                                                         (_, index) => index + 1 // A function that adds one to the index to represent the volume no. since an array starts from 0 
-                                                    ); // Coverts the total into individual entries eg 5 means the user has collected the first 5 volumes
+                                                    ); // Converts the total into individual entries eg 5 means the user has collected the first 5 volumes
 
                                                     setManga(currentManga => currentManga.map(item =>
-                                                        item.id === manga.id
+                                                        item.id === currentManga.id
                                                         ? { ...item, collectedVolumes: volumes }
                                                         : item
                                                     )
@@ -110,16 +126,29 @@ function MangaList({ manga, setManga }){
                                             onClick={() => {
                                                 const start = Number(rangeStart);
                                                 const end = Number(rangeEnd);
+                                                const max = selectedEdition.volumes.length;
+
+                                                if (start > end || end > max) {
+                                                    return;
+                                                } // Ensures that the range parameter is within the number of available volumes and that the start value does not exceed the end value
 
                                                 const volumes = Array.from(
                                                     { length: end - start + 1},
                                                     (_, index) => start + index
                                                 );
-
+                                    
                                                 setManga(currentManga => currentManga.map(item => 
-                                                    item.id === manga.id
-                                                    ? { ...item, collectedVolumes: volumes }
-                                                    : item
+                                                    item.id === currentManga.id
+                                                        ? { 
+                                                            ...item, 
+                                                            collectedVolumes: [
+                                                                ...new Set([
+                                                                    ...item.collectedVolumes,
+                                                                    ...volumes
+                                                                ]) // Added volumes are stored alongside the already existing volumes while preventing duplicates
+                                                            ]
+                                                        }
+                                                        : item
                                                     )
                                                 );
                                             }}
@@ -145,13 +174,27 @@ function MangaList({ manga, setManga }){
 
                                                 console.log(volumes);
 
+                                                const max = selectedEdition.volumes.length;
+
+                                                const validVolumes = volumes.filter(
+                                                    volume => volume >= 1 && volume <= max
+                                                );
+
                                                 setManga(currentManga => currentManga.map(item =>
-                                                    item.id === manga.id
-                                                    ? { ...item, collectedVolumes: volumes }
+                                                    item.id === currentManga.id
+                                                    ? { 
+                                                        ...item, 
+                                                        collectedVolumes: [
+                                                            ...new Set([
+                                                                ...item.collectedVolumes,
+                                                                ...validVolumes 
+                                                            ]) 
+                                                        ]
+                                                    }
                                                     : item
-                                                    )
+                                                )
                                             );
-                                        ``}}
+                                        }}
                                         >
                                             Apply
                                         </button>
@@ -163,14 +206,14 @@ function MangaList({ manga, setManga }){
                                 {selectedEdition.volumes.map(volume => (
                                     <button 
                                         key={volume.number} 
-                                        className={manga.collectedVolumes.includes(volume.number) ? "collected" : ""} // Checks if a volume has been collected among the stored volumes
+                                        className={currentManga.collectedVolumes.includes(volume.number) ? "collected" : ""} // Checks if a volume has been collected among the stored volumes
                                         onClick={() => {
                                             setManga(currentManga => 
                                                 currentManga.map(item =>
-                                                    item.id === manga.id
+                                                    item.id === currentManga.id
                                                         ? {
                                                             ...item,
-                                                            collectedVolumes: manga.collectedVolumes.includes(volume.number)
+                                                            collectedVolumes: item.collectedVolumes.includes(volume.number)
                                                             ? item.collectedVolumes.filter(
                                                                 collectedVolume => collectedVolume !== volume.number
                                                             ) // On click if the volume number is present it is removed
@@ -188,7 +231,7 @@ function MangaList({ manga, setManga }){
                                     </button>
                                 ))} {/* A volume selector in the form of numbers that stores and deletes the number of volumes a user has collected */}
                             </td>
-                            <td>{manga.volumes}</td>
+                            <td>{currentManga.volumes}</td>
                         </tr>)} // Table entry per row 
                     )
                 }
