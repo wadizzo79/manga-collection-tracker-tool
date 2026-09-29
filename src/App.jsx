@@ -56,6 +56,10 @@ function App() {
     const selectedManga = mangaInfo.find(manga => manga.id === id); // Compares the id from aniList against the id of same manga in mangainfo to find more details
     console.log("SELECTED MANGA:", selectedManga);
 
+    const usedEditions = manga
+      .filter(item => item.mangaId === id)
+      .map(item => item.selectedEdition);
+
     const newManga = {
       id: newId, // Manga collection's ID
       mangaId: id, // AniList's ID

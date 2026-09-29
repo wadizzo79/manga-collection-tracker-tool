@@ -38,12 +38,12 @@ function MangaList({ manga, setManga }){
                     return (
                         <tr>
                             <td>{currentManga.text}</td>
-                            <td>{currentManga.collectedVolumes.length}/{selectedEdition.volumes.length}</td> {/* Displays the number the user owns against the numbers of the selected edition available */}
+                            <td>{collectedVolumes.length}/{selectedEdition.volumes.length}</td> {/* Displays the number the user owns against the numbers of the selected edition available */}
                             <td>
                                 <select 
                                     value={currentManga.selectedEdition}
                                     onChange={(e) => {
-                                        setManga(currentManga => currentManga.map(
+                                        setManga(currentList => currentList.map(
                                             item => item.id === currentManga.id
                                             ? { 
                                                 ...item, 
@@ -61,7 +61,8 @@ function MangaList({ manga, setManga }){
                                                 <option key={edition.name} value={edition.name}>
                                                     {edition.name} {/* Name of the edition */}
                                                 </option>
-                                        ))}
+                                            ))
+                                        }
                                 </select> {/* The user selects the english edition from here */}
                                 <select
                                     value={inputMode}
@@ -93,7 +94,7 @@ function MangaList({ manga, setManga }){
                                                         (_, index) => index + 1 // A function that adds one to the index to represent the volume no. since an array starts from 0 
                                                     ); // Converts the total into individual entries eg 5 means the user has collected the first 5 volumes
 
-                                                    setManga(currentManga => currentManga.map(item =>
+                                                    setManga(currentList => currentList.map(item =>
                                                         item.id === currentManga.id
                                                         ? { ...item, collectedVolumes: volumes }
                                                         : item
@@ -137,7 +138,7 @@ function MangaList({ manga, setManga }){
                                                     (_, index) => start + index
                                                 );
                                     
-                                                setManga(currentManga => currentManga.map(item => 
+                                                setManga(currentList => currentList.map(item => 
                                                     item.id === currentManga.id
                                                         ? { 
                                                             ...item, 
@@ -180,7 +181,7 @@ function MangaList({ manga, setManga }){
                                                     volume => volume >= 1 && volume <= max
                                                 );
 
-                                                setManga(currentManga => currentManga.map(item =>
+                                                setManga(currentList => currentList.map(item =>
                                                     item.id === currentManga.id
                                                     ? { 
                                                         ...item, 
@@ -208,8 +209,8 @@ function MangaList({ manga, setManga }){
                                         key={volume.number} 
                                         className={currentManga.collectedVolumes.includes(volume.number) ? "collected" : ""} // Checks if a volume has been collected among the stored volumes
                                         onClick={() => {
-                                            setManga(currentManga => 
-                                                currentManga.map(item =>
+                                            setManga(currentList => 
+                                                currentList.map(item =>
                                                     item.id === currentManga.id
                                                         ? {
                                                             ...item,
