@@ -57,8 +57,16 @@ function App() {
     console.log("SELECTED MANGA:", selectedManga);
 
     const usedEditions = manga
-      .filter(item => item.mangaId === id)
-      .map(item => item.selectedEdition);
+      .filter(item => item.mangaId === id) // Checks if the added manga is the same manga as an already existing entry
+      .map(item => item.selectedEdition); // If so it stores the edition of the previous entry
+
+    const defaultEdition = selectedManga.englishEditions.find(
+      edition => !usedEditions.includes(edition.name) // Checks if the selected edition is stored in usedEditions if not it becomes the default edition
+    );
+
+    if (!defaultEdition) {
+      return;
+    } // Checks if there are any remaining english editions before creating another entry
 
     const newManga = {
       id: newId, // Manga collection's ID
@@ -66,7 +74,7 @@ function App() {
       text: text, // Manga title
       volumes: volumes, // AniList's general volume count
       englishEditions: selectedManga.englishEditions, // The english edition information from the record found in mangaInfo 
-      selectedEdition: "VIZBIG", // The default selection for an added manga
+      selectedEdition: defaultEdition.name, // The default selection for an added manga
       collectedVolumes: [] // The number of volumes owned by the user is stored here
     }; // Creates an entry
     
