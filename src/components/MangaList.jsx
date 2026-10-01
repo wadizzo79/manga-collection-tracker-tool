@@ -100,6 +100,8 @@ function MangaList({ manga, setManga }){
                                                         : item
                                                     )
                                                 ); // Stores the separated entries into their respective manga
+
+                                                setTotalInput(""); // Clears the input 
                                             }}
                                         >
                                             Apply
@@ -152,6 +154,9 @@ function MangaList({ manga, setManga }){
                                                         : item
                                                     )
                                                 );
+
+                                                setRangeStart("");
+                                                setRangeEnd("");
                                             }}
                                         >
                                             Apply
@@ -195,6 +200,8 @@ function MangaList({ manga, setManga }){
                                                     : item
                                                 )
                                             );
+
+                                            setIndividualInput("");
                                         }}
                                         >
                                             Apply
