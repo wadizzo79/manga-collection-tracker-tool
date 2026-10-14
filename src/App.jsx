@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import InputArea from './components/InputArea.jsx'
 import MangaList from './components/MangaList.jsx'
+import { mangaInfo } from './mangaInfo.js'
 
 function App() {
   const [manga, setManga] = useState([]);
@@ -9,45 +10,6 @@ function App() {
   const newId = manga.length > 0
     ? Math.max(...manga.map(manga => manga.id)) + 1
     : 1; //Calculates the next available id from existing entries
-
-
-  const mangaInfo = [{
-    id: 30656,
-    title: "Vagabond",
-    japaneseVolumes: 37,
-
-    englishEditions: [
-      {
-        name: "Singles",
-        format: "single",
-        volumes: [
-        
-        ]
-      },
-      {
-        name: "VIZBIG",
-        format: "omnibus",
-        volumes: [
-          {
-            number: 1,
-            covers: [1, 2, 3]
-          },
-          {
-            number: 2,
-            covers: [4, 5, 6]
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 54321,
-    title: "Blue Lock",
-    japaneseVolumes: 40,
-
-    englishEditions: []
-  }
-];
 
   function addManga(id, text, volumes) {  
     console.log("AniList ID:", id);
