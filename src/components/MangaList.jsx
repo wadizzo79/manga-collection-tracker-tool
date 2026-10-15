@@ -1,9 +1,16 @@
 import MangaRow from './MangaRow';
 
-function MangaList({ manga, setManga }){
+function MangaList({ manga, setManga, searchBooks, testKodansha }){
     
 
     return (
+        <>
+        <button onClick={() => searchBooks("Blue Lock")}>
+            Test Open Library
+        </button>
+        <button onClick={testKodansha}>
+            Test Kodansha
+        </button>
         <table>
             <thead>
                 <tr>
@@ -28,6 +35,7 @@ function MangaList({ manga, setManga }){
                   
             </tbody>
         </table>
+        </>
     ); // Manga entry list
 }
 

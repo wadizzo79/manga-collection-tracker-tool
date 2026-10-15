@@ -231,13 +231,10 @@ function MangaRow({ manga, currentManga, setManga }){
             <button
                 onClick={() => {
                     setManga(currentList => 
-                        currentList.map(item =>
-                            item.id === currentManga.id
-                            ? {
-                                // continue from here
-                            } 
-                        )
-                    )
+                        currentList.filter(
+                            item => item.id !== currentManga.id 
+                    ) // Keeps the entries that satisfy the condition        
+                    );
                 }}
             >Delete</button>
         </tr>
