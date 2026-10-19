@@ -9,16 +9,12 @@ app.get("/api/manga", (req, res) => { // req represents incoming requests, res r
     }); // sends JS data as JSON
 }); // defines an endpoint that responds to GET requests
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-}); //starts the server on port 3000
-
 app.get("/api/books", async (req, res) => {
     const title = req.query.title;
 
     try {
         const response = await fetch(
-            `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=10`
+            `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&limit=100`
         );
 
         if (!response.ok) {
@@ -29,7 +25,27 @@ app.get("/api/books", async (req, res) => {
 
         const data = await response.json();
 
-        res.json(data.docs);
+        const filteredBooks = data.docs.filter(book => /^Blue Lock\s+\d+$/i.test(book.title));
+
+        console.log("Original results:", data.docs.length);
+        console.log("Filtered results:", filteredBooks.length);
+
+        const testtitle = filteredBooks.map(book => 
+            book.title.match(/\d+$/)
+        ); // Continue from here
+
+        //const result = testtitle.match(/\d+$/);
+        console.log(Number(testtitle[0]));
+
+        console.table(
+            filteredBooks.map(book => ({
+                title: book.title,
+                volumenumber: book.title.match(/\d+$/),
+                language: book.language?.join(", ")
+            }))
+        );
+
+        res.json(filteredBooks);
     } catch (error) {
         console.error(error);
 
@@ -38,3 +54,7 @@ app.get("/api/books", async (req, res) => {
         });
     }
 });
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+}); //starts the server on port 3000

@@ -4,7 +4,7 @@ import InputArea from './components/InputArea.jsx'
 import MangaList from './components/MangaList.jsx'
 import { mangaInfo } from './mangaInfo.js'
 import { searchBooks } from './bookApi.js'
-import { testKodansha } from './bookApi.js'
+
 
 function App() {
   const [manga, setManga] = useState([]);
@@ -64,24 +64,16 @@ function App() {
         }
       ]
     };
- 
-  async function testBackend() {
-    const response = await fetch("/api/manga");
-
-    const data = await response.json();
-
-    console.log("Backend response:", data);
-  }
 
 
   return (
     <>
       <InputArea addManga={addManga} />
       
-      <MangaList manga={manga} setManga={setManga} searchBooks={searchBooks} testKodansha={testKodansha} />
+      <MangaList manga={manga} setManga={setManga} searchBooks={searchBooks} />
 
-      <button onClick={testBackend}>
-        Test Backend
+      <button onClick={() => searchBooks("Blue Lock")}>
+        Test Book Search
       </button>
     </>
   );
