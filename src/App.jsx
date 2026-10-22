@@ -70,7 +70,11 @@ function App() {
     <>
       <InputArea addManga={addManga} />
       
-      <MangaList manga={manga} setManga={setManga} searchBooks={searchBooks} />
+      <MangaList 
+          manga={manga} 
+          setManga={setManga}
+          mangaInfo={mangaInfo} 
+          searchBooks={searchBooks} /> 
 
       <button onClick={() => searchBooks("Blue Lock")}>
         Test Book Search
