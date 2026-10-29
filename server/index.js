@@ -106,8 +106,8 @@ app.get("/api/prh-test", async (req, res) => {
     );
 
     url.searchParams.set("q", title);
-    url.searchParams.set("docType", "work");
-    url.searchParams.set("rows", "10");
+    url.searchParams.set("docType", "isbn");
+    url.searchParams.set("rows", "20");
     url.searchParams.set("api_key", apiKey);
 
     try {
@@ -130,8 +130,11 @@ app.get("/api/prh-test", async (req, res) => {
 
         const data = await response.json();
 
+        console.log("Response fields:", Object.keys(data));
+        console.log("Data fields:", Object.keys(data.data ?? {}));
+
         console.table(
-            (data.results ?? []).map(book => ({
+            (data.data?.results ?? []).map(book => ({
                 name: book.name,
                 type: book.docType,
                 id: book.key
@@ -139,8 +142,8 @@ app.get("/api/prh-test", async (req, res) => {
         );
 
         res.json({
-            count: data.results?.length ?? 0,
-            results: data.results ?? []
+            count: data.data?.results?.length ?? 0,
+            results: data.data?.results ?? []
         });
 
     } catch (error) {

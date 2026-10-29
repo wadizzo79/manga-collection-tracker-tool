@@ -1,6 +1,6 @@
 import MangaRow from './MangaRow';
 
-function MangaList({ manga, setManga, searchBooks, testKodansha }){
+function MangaList({ manga, setManga, searchBooks, testKodansha, mangaInfo }){
     
 
     return (
@@ -28,6 +28,7 @@ function MangaList({ manga, setManga, searchBooks, testKodansha }){
                         currentManga={currentManga}
                         manga={manga}
                         setManga={setManga}
+                        mangaInfo={mangaInfo}
                     />
                      // Table entry per row 
                     ))

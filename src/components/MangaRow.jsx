@@ -1,14 +1,17 @@
 import { useState } from 'react'
 
-function MangaRow({ manga, currentManga, setManga }){
+function MangaRow({ manga, currentManga, setManga, mangaInfo }){
     const [inputMode, setInputMode] = useState("total"); // Remembers the input mode the user selected
     const [totalInput, setTotalInput] = useState(""); // Remembers the input the user typed into the field after selecting "total"
     const [rangeStart, setRangeStart] = useState(""); // Remembers the first value entered by the user after selecting the "range" option
     const [rangeEnd, setRangeEnd] = useState(""); // Remembers the second value entered by the user after selecting the "range" option
     const [individualInput, setIndividualInput] = useState(""); // Remembers the input the user typed into the field after selecting "individual"
 
+    const mangaDetails = mangaInfo.find(
+        item => item.id === currentManga.mangaId // item.id is the manga's anilist id in the reference dataset while currentManga.id is the anilist ID stored in the user's collection entry
+    );
     
-    const selectedEdition = currentManga.englishEditions.find(
+    const selectedEdition = mangaDetails.englishEditions.find(
         edition => edition.name === currentManga.selectedEdition
     );
     const collectedVolumes = currentManga.collectedVolumes;
@@ -43,7 +46,7 @@ function MangaRow({ manga, currentManga, setManga }){
                         );
                     }} 
                     >
-                        {currentManga.englishEditions
+                        {mangaDetails.englishEditions
                             .filter(edition => !usedEditions.includes(edition.name))
                             .map(edition => (
                                 <option key={edition.name} value={edition.name}>

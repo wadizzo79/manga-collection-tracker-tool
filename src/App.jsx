@@ -20,6 +20,12 @@ function App() {
     const selectedManga = mangaInfo.find(manga => manga.id === id); // Compares the id from aniList against the id of same manga in mangainfo to find more details
     console.log("SELECTED MANGA:", selectedManga);
 
+    if (!selectedManga) {
+      console.log("Information not available");
+      return;
+    } // If manga information is not available addManga() stops here
+    
+
     const usedEditions = manga
       .filter(item => item.mangaId === id) // Checks if the added manga is the same manga as an already existing entry
       .map(item => item.selectedEdition); // If so it stores the edition of the previous entry
@@ -36,8 +42,7 @@ function App() {
       id: newId, // Manga collection's ID
       mangaId: id, // AniList's ID
       text: text, // Manga title
-      volumes: volumes, // AniList's general volume count
-      englishEditions: selectedManga.englishEditions, // The english edition information from the record found in mangaInfo 
+      volumes: volumes, // AniList's general volume count 
       selectedEdition: defaultEdition.name, // The default selection for an added manga
       collectedVolumes: [] // The number of volumes owned by the user is stored here
     }; // Creates an entry
