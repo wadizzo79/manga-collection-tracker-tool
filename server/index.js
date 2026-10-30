@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express from "express";
+import { searchPrhBooks } from "./providers/prh.js";
+import process from "node:pocess";
 
 const app = express(); // Creates backend application
 const PORT = 3000;
@@ -92,8 +94,33 @@ app.get("/api/books", async (req, res) => {
 }); */
 
 app.get("/api/prh-test", async (req, res) => {
+    const title = req.query.title || "Blue Lock"; 
+
+    try {       
+        const books = await searchPrhBooks(title);
+
+        console.table(
+            books.map(book => ({
+                name: book.name,
+                type: book.docType,
+                isbn: book.key
+            }))
+        )
+
+        res.json(books);
+    } catch (error) {
+        console.error("PRH connection error:", error.message);
+
+        res.status(500).json({
+            error: "Could not connect to PRH"
+        });
+    }
+});
+
+app.get("/api/prh-isbn/:isbn", async (req, res) => {
     const title = req.query.title || "Blue Lock";
     const apiKey = process.env.PRH_API_KEY;
+    const isbn = req.params.isbn;
 
     if (!apiKey) {
         return res.status(500).json({
@@ -102,13 +129,14 @@ app.get("/api/prh-test", async (req, res) => {
     }
 
     const url = new URL(
-        "https://api.penguinrandomhouse.com/resources/v2/title/domains/PRH.US/search"
+        `https://api.penguinrandomhouse.com/resources/v2/title/domains/PRH.US/titles/${isbn}`
     );
 
     url.searchParams.set("q", title);
     url.searchParams.set("docType", "isbn");
     url.searchParams.set("rows", "20");
     url.searchParams.set("api_key", apiKey);
+    url.searchParams.set("api_key", process.env.PRH_API_KEY);
 
     try {
         const response = await fetch(url);
@@ -134,16 +162,19 @@ app.get("/api/prh-test", async (req, res) => {
         console.log("Data fields:", Object.keys(data.data ?? {}));
 
         console.table(
-            (data.data?.results ?? []).map(book => ({
-                name: book.name,
-                type: book.docType,
-                id: book.key
+            (data.data?.titles ?? []).map(book => ({
+                title: book.title,
+                isbn: book.isbn,
+                format: book.format?.description,
+                formatFamily: book.formatFamily,
+                releaseDate: book.onsale,
+                imprint: book.imprint
             }))
         );
 
         res.json({
-            count: data.data?.results?.length ?? 0,
-            results: data.data?.results ?? []
+            count: data.data?.titles?.length ?? 0,
+            results: data.data?.titles ?? []
         });
 
     } catch (error) {
@@ -154,6 +185,7 @@ app.get("/api/prh-test", async (req, res) => {
         });
     }
 });
+
 
 /*app.get("/api/ann-test", async (req, res) => {
     const title = req.query.title;
