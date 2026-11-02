@@ -1,4 +1,4 @@
-import process from "node:pocess";
+import process from "node:process";
 
 async function searchPrhBooks(title) {
     const apiKey = process.env.PRH_API_KEY;
@@ -33,6 +33,10 @@ async function searchPrhBooks(title) {
     const data = await response.json(); // parses the response
 
     return data.data?.results ?? []; // gives the book array back to the caller
+}
+
+async function getPrhBookByIsbn(isbn) {
+    
 }
 
 export {searchPrhBooks};

@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { searchPrhBooks } from "./providers/prh.js";
-import process from "node:pocess";
+import process from "node:process";
 
 const app = express(); // Creates backend application
 const PORT = 3000;
@@ -118,7 +118,6 @@ app.get("/api/prh-test", async (req, res) => {
 });
 
 app.get("/api/prh-isbn/:isbn", async (req, res) => {
-    const title = req.query.title || "Blue Lock";
     const apiKey = process.env.PRH_API_KEY;
     const isbn = req.params.isbn;
 
@@ -132,11 +131,7 @@ app.get("/api/prh-isbn/:isbn", async (req, res) => {
         `https://api.penguinrandomhouse.com/resources/v2/title/domains/PRH.US/titles/${isbn}`
     );
 
-    url.searchParams.set("q", title);
-    url.searchParams.set("docType", "isbn");
-    url.searchParams.set("rows", "20");
     url.searchParams.set("api_key", apiKey);
-    url.searchParams.set("api_key", process.env.PRH_API_KEY);
 
     try {
         const response = await fetch(url);
