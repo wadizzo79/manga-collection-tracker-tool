@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { searchPrhBooks } from "./providers/prh.js";
-import process from "node:process";
+import { searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks } from "./providers/prh.js";
 
 const app = express(); // Creates backend application
 const PORT = 3000;
@@ -95,9 +94,10 @@ app.get("/api/books", async (req, res) => {
 
 app.get("/api/prh-test", async (req, res) => {
     const title = req.query.title || "Blue Lock"; 
+    const start = Number(req.query.start ?? 0);
 
     try {       
-        const books = await searchPrhBooks(title);
+        const books = await getAllPrhBooks(title, start);
 
         console.table(
             books.map(book => ({
@@ -117,47 +117,14 @@ app.get("/api/prh-test", async (req, res) => {
     }
 });
 
-app.get("/api/prh-isbn/:isbn", async (req, res) => {
-    const apiKey = process.env.PRH_API_KEY;
-    const isbn = req.params.isbn;
-
-    if (!apiKey) {
-        return res.status(500).json({
-            error: "PRH API key is missing"
-        });
-    }
-
-    const url = new URL(
-        `https://api.penguinrandomhouse.com/resources/v2/title/domains/PRH.US/titles/${isbn}`
-    );
-
-    url.searchParams.set("api_key", apiKey);
+app.get("/api/prh-isbn/:isbn", async (req, res) => {   
+    const isbn = req.params.isbn;   
 
     try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            console.error("PRH status:", response.status);
-
-            const errorBody = await response.text();
-
-            console.error("PRH error:",
-                errorBody.replaceAll(apiKey, "[REDACTED]").slice(0, 500)
-            )
-
-            return res.status(502).json({
-                error: "PRH API request failed",
-                status: response.status
-            });
-        }
-
-        const data = await response.json();
-
-        console.log("Response fields:", Object.keys(data));
-        console.log("Data fields:", Object.keys(data.data ?? {}));
-
+        const books = await getPrhBookByIsbn(isbn);
+   
         console.table(
-            (data.data?.titles ?? []).map(book => ({
+            books.map(book => ({
                 title: book.title,
                 isbn: book.isbn,
                 format: book.format?.description,
@@ -167,10 +134,7 @@ app.get("/api/prh-isbn/:isbn", async (req, res) => {
             }))
         );
 
-        res.json({
-            count: data.data?.titles?.length ?? 0,
-            results: data.data?.titles ?? []
-        });
+        res.json(books);
 
     } catch (error) {
         console.error("PRH connection error:", error.message);
