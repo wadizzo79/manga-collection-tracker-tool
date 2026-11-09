@@ -100,6 +100,28 @@ app.get("/api/prh-test", async (req, res) => {
         const books = await getAllPrhBooks(title, start);
 
         console.table(
+            books
+                .filter(book => [
+                    "Berserk Volume 43",
+                    "Berserk Deluxe Volume 14",
+                    "Berserk of Gluttony (Manga) Vol. 15"
+                ].includes(book.name))
+                .map(book => ({
+                    name: book.name,
+                    author: book.author,
+                    seriesIsbn: book.seriesIsbn,
+                    seriesCount: book.sseriesCount,
+                    seriesAuthor: book.seriesAuthor
+                }))
+        );
+
+        console.log("Available fields:", Object.keys(books[0] ?? {}));
+
+        if (books.length === 100) {
+            console.warn("Search reached the 100-record limit. Results may be incomplete.")
+        }
+
+        console.table(
             books.map(book => ({
                 name: book.name,
                 type: book.docType,
