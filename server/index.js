@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks } from "./providers/prh.js";
+import { getVolumeCandidates } from "./processing/bookMatcher.js"
 
 const app = express(); // Creates backend application
 const PORT = 3000;
@@ -98,6 +99,14 @@ app.get("/api/prh-test", async (req, res) => {
 
     try {       
         const books = await getAllPrhBooks(title, start);
+        const candidates = getVolumeCandidates(books, title);
+
+        console.table(
+            candidates.slice(0, 15).map(book => ({
+                name: book.name,
+                remainder: book.remainder
+            }))
+        );
 
         console.table(
             books
