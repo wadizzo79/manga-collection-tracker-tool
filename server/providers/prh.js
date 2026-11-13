@@ -91,4 +91,79 @@ async function getPrhBookByIsbn(isbn) {
     return data.data?.titles ?? [];
 }
 
-export {searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks};
+async function getPrhSeriesByIsbn(isbn) {
+   const apiKey = process.env.PRH_API_KEY;
+
+    if (!apiKey) {
+        throw new Error("PRH API key is missing");
+    }
+
+    const url = new URL(
+        `https://api.penguinrandomhouse.com/resources/v2/title/domains/PRH.US/titles/${isbn}/series`
+    );
+
+    url.searchParams.set("api_key", apiKey);
+    url.searchParams.set("suppressLinks", "true");
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        console.error("PRH status:", response.status);
+
+        const errorBody = await response.text();
+
+        console.error("PRH error:",
+            errorBody.replaceAll(apiKey, "[REDACTED]").slice(0, 500)
+        )
+
+        throw new Error(`PRH API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    console.log("Response fields:", Object.keys(data));
+    console.log("Data fields:", Object.keys(data.data ?? {}));
+
+    return data.data?.series ?? []; 
+}
+
+async function getPrhTitlesBySeries(seriesCode, start = 0) {
+    const apiKey = process.env.PRH_API_KEY;
+
+    if (!apiKey) {
+        throw new Error("PRH API key is missing");
+    }
+
+    const url = new URL(
+        `https://api.penguinrandomhouse.com/resources/v2/title/domains/PRH.US/series/${seriesCode}/titles`
+    );
+
+    url.searchParams.set("api_key", apiKey);
+    url.searchParams.set("suppressLinks", "true");
+    url.searchParams.set("rows", "20");
+    url.searchParams.set("formatFamily", "Paperback")
+    url.searchParams.set("start", String(start));
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        console.error("PRH status:", response.status);
+
+        const errorBody = await response.text();
+
+        console.error("PRH error:",
+            errorBody.replaceAll(apiKey, "[REDACTED]").slice(0, 500)
+        )
+
+        throw new Error(`PRH API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    console.log("Response fields:", Object.keys(data));
+    console.log("Data fields:", Object.keys(data.data ?? {}));
+
+    return data.data?.titles ?? []; 
+}
+
+export {searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks, getPrhSeriesByIsbn, getPrhTitlesBySeries};

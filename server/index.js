@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks } from "./providers/prh.js";
+import { searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks, getPrhSeriesByIsbn, getPrhTitlesBySeries } from "./providers/prh.js";
 import { getVolumeCandidates } from "./processing/bookMatcher.js"
 
 const app = express(); // Creates backend application
@@ -173,6 +173,40 @@ app.get("/api/prh-isbn/:isbn", async (req, res) => {
         res.status(500).json({
             error: "Could not connect to PRH"
         });
+    }
+});
+
+app.get("/api/prh-series/:isbn", async (req, res) => {
+    try {
+        const series = await getPrhSeriesByIsbn(req.params.isbn);
+        res.json(series);
+    } catch (error) {
+        console.error("PRH series lookup failed:", error.message);
+        res.status(502).json({ error: "PRH series lookup failed" });
+    }
+});
+
+app.get("/api/prh-series/:seriesCode/titles", async (req, res) => {
+    try {
+        const start = Number(req.query.start ?? 0);
+        const books = await getPrhTitlesBySeries(req.params.seriesCode, start);
+
+        console.log("Books returned:", books.length);
+        console.log("Available fields:", Object.keys(books[0] ?? {}));
+
+        const summary = books.map(book => ({
+            title: book.title,
+            isbn: book.isbn,
+            seriesNumber: book.seriesNumber,
+            formatFamily: book.formatFamily,
+            releaseDate: book.onsale
+        }));
+
+        console.table(summary);
+        res.json(summary);
+    } catch (error) {
+        console.error("Series titles lookup failed:", error.message);
+        res.status(502).json({ error: "Series titles lookup failed" });
     }
 });
 
