@@ -1,7 +1,8 @@
 import "dotenv/config";
 import express from "express";
-import { searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks, getPrhSeriesByIsbn, getPrhTitlesBySeries } from "./providers/prh.js";
+import { searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks, getPrhSeriesByIsbn, getPrhTitlesBySeries, getAllPrhTitlesBySeries } from "./providers/prh.js";
 import { getVolumeCandidates } from "./processing/bookMatcher.js"
+import { normalizePrhTitles } from "./processing/normalizePrh.js"
 
 const app = express(); // Creates backend application
 const PORT = 3000;
@@ -188,8 +189,21 @@ app.get("/api/prh-series/:isbn", async (req, res) => {
 
 app.get("/api/prh-series/:seriesCode/titles", async (req, res) => {
     try {
-        const start = Number(req.query.start ?? 0);
-        const books = await getPrhTitlesBySeries(req.params.seriesCode, start);
+        const books = await getAllPrhTitlesBySeries(req.params.seriesCode);
+
+        const normalizedBooks = normalizePrhTitles(books, req.params.seriesCode);
+
+        const missingNumbers = books.filter(book =>
+            book.seriesNumber == null
+        );
+
+        console.table(
+            missingNumbers.map(book => ({
+                title: book.title,
+                isbn: book.isbn,
+                releaseDate: book.onsale
+            }))
+        );
 
         console.log("Books returned:", books.length);
         console.log("Available fields:", Object.keys(books[0] ?? {}));
@@ -203,7 +217,7 @@ app.get("/api/prh-series/:seriesCode/titles", async (req, res) => {
         }));
 
         console.table(summary);
-        res.json(summary);
+        res.json(normalizedBooks);
     } catch (error) {
         console.error("Series titles lookup failed:", error.message);
         res.status(502).json({ error: "Series titles lookup failed" });

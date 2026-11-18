@@ -139,7 +139,7 @@ async function getPrhTitlesBySeries(seriesCode, start = 0) {
     );
 
     url.searchParams.set("api_key", apiKey);
-    url.searchParams.set("suppressLinks", "true");
+    url.searchParams.set("suppressLinks", "true"); // Hides the links which prevents exposure of the API key
     url.searchParams.set("rows", "20");
     url.searchParams.set("formatFamily", "Paperback")
     url.searchParams.set("start", String(start));
@@ -166,4 +166,24 @@ async function getPrhTitlesBySeries(seriesCode, start = 0) {
     return data.data?.titles ?? []; 
 }
 
-export {searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks, getPrhSeriesByIsbn, getPrhTitlesBySeries};
+async function getAllPrhTitlesBySeries(seriesCode) {
+    const allBooks = [];
+    let start = 0;
+    const pageSize = 20;
+    const maxPages = 5;
+    
+    for (let page= 0; page < maxPages; page++) {
+        const results = await getPrhTitlesBySeries(seriesCode, start);
+        allBooks.push(...results);
+
+        if (results.length < pageSize) {
+            break;
+        } else {
+            start += pageSize;
+        }
+    }
+    
+    return allBooks;
+} // Automatic series pagination
+
+export {searchPrhBooks, getPrhBookByIsbn, getAllPrhBooks, getPrhSeriesByIsbn, getPrhTitlesBySeries, getAllPrhTitlesBySeries};
